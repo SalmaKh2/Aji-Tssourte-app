@@ -12,7 +12,8 @@ class AssessmentCardWidget extends StatelessWidget {
   final String iconName;
   final Color color;
   final bool isCompleted;
-  final VoidCallback onTap;
+  final bool isLocked;
+  final VoidCallback? onTap;
 
   const AssessmentCardWidget({
     super.key,
@@ -22,7 +23,8 @@ class AssessmentCardWidget extends StatelessWidget {
     required this.iconName,
     required this.color,
     required this.isCompleted,
-    required this.onTap,
+    this.isLocked = false,
+    this.onTap,
   });
 
   @override
@@ -32,7 +34,7 @@ class AssessmentCardWidget extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: isLocked ? null : onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: EdgeInsets.all(4.w),
@@ -117,6 +119,19 @@ class AssessmentCardWidget extends StatelessWidget {
                         size: 20,
                       ),
                     )
+                  else if (isLocked)
+                    Container(
+                      padding: EdgeInsets.all(2.w),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
+                        shape: BoxShape.circle,
+                      ),
+                      child: CustomIconWidget(
+                        iconName: 'lock',
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                        size: 18,
+                      ),
+                    )
                   else
                     CustomIconWidget(
                       iconName: 'arrow_forward_ios',
@@ -137,8 +152,8 @@ class AssessmentCardWidget extends StatelessWidget {
               SizedBox(height: 2.h),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: onTap,
+                  child: ElevatedButton(
+                  onPressed: isLocked ? null : onTap,
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                         isCompleted ? theme.colorScheme.surface : color,
