@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Login form widget with email and password fields
-/// Includes forgot password functionality and form validation
+/// Formulaire de connexion avec champs email et mot de passe
+/// Inclut la fonctionnalité de mot de passe oublié et la validation du formulaire
 class LoginFormWidget extends StatefulWidget {
   final VoidCallback onSuccess;
   final Function(String) onError;
@@ -26,7 +26,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
-  // Mock credentials for testing
+  // Identifiants fictifs pour les tests
   final String _mockEmail = 'user@ajitssourte.com';
   final String _mockPassword = 'Test@123';
 
@@ -37,50 +37,50 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
     super.dispose();
   }
 
-  /// Validates email format
+  /// Valide le format de l'email
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Email is required';
+      return 'L\'email est requis';
     }
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}\$');
     if (!emailRegex.hasMatch(value)) {
-      return 'Enter a valid email address';
+      return 'Veuillez entrer une adresse email valide';
     }
     return null;
   }
 
-  /// Validates password
+  /// Valide le mot de passe
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Password is required';
+      return 'Le mot de passe est requis';
     }
     if (value.length < 6) {
-      return 'Password must be at least 6 characters';
+      return 'Le mot de passe doit contenir au moins 6 caractères';
     }
     return null;
   }
 
-  /// Handles login submission
+  /// Gère la soumission de la connexion
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
     widget.onLoadingChanged(true);
 
-    // Simulate API call
+    // Simulation d'appel API
     await Future.delayed(const Duration(seconds: 2));
 
-    // Check mock credentials
+    // Vérification des identifiants fictifs
     if (_emailController.text.trim() == _mockEmail &&
         _passwordController.text == _mockPassword) {
       widget.onLoadingChanged(false);
       widget.onSuccess();
     } else {
       widget.onLoadingChanged(false);
-      widget.onError('Invalid credentials. Use: $_mockEmail / $_mockPassword');
+      widget.onError('Identifiants invalides. Utilisez : $_mockEmail / $_mockPassword');
     }
   }
 
-  /// Shows forgot password dialog
+  /// Affiche la boîte de dialogue de mot de passe oublié
   void _showForgotPasswordDialog() {
     final theme = Theme.of(context);
     final resetEmailController = TextEditingController();
@@ -89,14 +89,14 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Reset Password',
+          'Réinitialiser le mot de passe',
           style: theme.textTheme.titleLarge,
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Enter your email address and we\'ll send you a link to reset your password.',
+              'Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.',
               style: theme.textTheme.bodyMedium,
             ),
             SizedBox(height: 16),
@@ -116,19 +116,19 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
+            child: Text('Annuler'),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Password reset link sent to your email'),
+                  content: Text('Lien de réinitialisation envoyé à votre email'),
                   backgroundColor: theme.colorScheme.secondary,
                 ),
               );
             },
-            child: Text('Send Link'),
+            child: Text('Envoyer le lien'),
           ),
         ],
       ),
@@ -144,7 +144,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Email Field
+          // Champ Email
           TextFormField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
@@ -152,7 +152,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
             validator: _validateEmail,
             decoration: InputDecoration(
               labelText: 'Email',
-              hintText: 'Enter your email',
+              hintText: 'Entrez votre email',
               prefixIcon: Icon(Icons.email_outlined),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -161,7 +161,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           ),
           SizedBox(height: 16),
 
-          // Password Field
+          // Champ Mot de passe
           TextFormField(
             controller: _passwordController,
             obscureText: _obscurePassword,
@@ -169,8 +169,8 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
             validator: _validatePassword,
             onFieldSubmitted: (_) => _handleLogin(),
             decoration: InputDecoration(
-              labelText: 'Password',
-              hintText: 'Enter your password',
+              labelText: 'Mot de passe',
+              hintText: 'Entrez votre mot de passe',
               prefixIcon: Icon(Icons.lock_outline),
               suffixIcon: IconButton(
                 icon: Icon(
@@ -187,13 +187,13 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           ),
           SizedBox(height: 8),
 
-          // Forgot Password Link
+          // Lien Mot de passe oublié
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: _showForgotPasswordDialog,
               child: Text(
-                'Forgot Password?',
+                'Mot de passe oublié ?',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.primary,
                   fontWeight: FontWeight.w500,
@@ -203,7 +203,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
           ),
           SizedBox(height: 24),
 
-          // Login Button
+          // Bouton de connexion
           SizedBox(
             height: 56,
             child: ElevatedButton(
@@ -225,7 +225,7 @@ class _LoginFormWidgetState extends State<LoginFormWidget> {
                       ),
                     )
                   : Text(
-                      'Login',
+                      'Se connecter',
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: theme.colorScheme.onPrimary,
                         fontWeight: FontWeight.w600,
