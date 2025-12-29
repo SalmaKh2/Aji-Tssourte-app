@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// Registration form widget with age validation (18-30 years)
-/// Includes email, password, confirm password, age, and terms acceptance
+/// Formulaire d'inscription avec validation d'âge (18-30 ans)
+/// Inclut email, mot de passe, confirmation de mot de passe, âge et acceptation des conditions
 class RegisterFormWidget extends StatefulWidget {
   final VoidCallback onSuccess;
   final Function(String) onError;
@@ -40,130 +40,130 @@ class _RegisterFormWidgetState extends State<RegisterFormWidget> {
     super.dispose();
   }
 
-  /// Validates email format
+  /// Valide le format de l'email
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Email is required';
+      return 'L\'email est requis';
     }
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}\$');
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value)) {
-      return 'Enter a valid email address';
+      return 'Veuillez entrer une adresse email valide';
     }
     return null;
   }
 
-  /// Validates password strength
+  /// Valide la force du mot de passe
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Password is required';
+      return 'Le mot de passe est requis';
     }
     if (value.length < 8) {
-      return 'Password must be at least 8 characters';
+      return 'Le mot de passe doit contenir au moins 8 caractères';
     }
     if (!value.contains(RegExp(r'[A-Z]'))) {
-      return 'Password must contain at least one uppercase letter';
+      return 'Le mot de passe doit contenir au moins une majuscule';
     }
     if (!value.contains(RegExp(r'[a-z]'))) {
-      return 'Password must contain at least one lowercase letter';
+      return 'Le mot de passe doit contenir au moins une minuscule';
     }
     if (!value.contains(RegExp(r'[0-9]'))) {
-      return 'Password must contain at least one number';
+      return 'Le mot de passe doit contenir au moins un chiffre';
     }
     if (!value.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>]'))) {
-      return 'Password must contain at least one special character';
+      return 'Le mot de passe doit contenir au moins un caractère spécial';
     }
     return null;
   }
 
-  /// Validates confirm password matches
+  /// Valide que la confirmation correspond au mot de passe
   String? _validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please confirm your password';
+      return 'Veuillez confirmer votre mot de passe';
     }
     if (value != _passwordController.text) {
-      return 'Passwords do not match';
+      return 'Les mots de passe ne correspondent pas';
     }
     return null;
   }
 
-  /// Validates age is between 18-30
+  /// Valide que l'âge est entre 18 et 30 ans
   String? _validateAge(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Age is required';
+      return 'L\'âge est requis';
     }
     final age = int.tryParse(value);
     if (age == null) {
-      return 'Enter a valid age';
+      return 'Veuillez entrer un âge valide';
     }
     if (age < 18 || age > 30) {
-      return 'This program is designed for ages 18-30';
+      return 'Ce programme est conçu pour les 18-30 ans';
     }
     return null;
   }
 
-  /// Handles registration submission
+  /// Gère la soumission de l'inscription
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (!_acceptedTerms) {
-      widget.onError('Please accept the terms and conditions');
+      widget.onError('Veuillez accepter les conditions générales');
       return;
     }
 
     widget.onLoadingChanged(true);
 
-    // Simulate API call
+    // Simulation d'appel API
     await Future.delayed(const Duration(seconds: 2));
 
     widget.onLoadingChanged(false);
     widget.onSuccess();
   }
 
-  /// Shows terms and conditions dialog
+  /// Affiche la boîte de dialogue des conditions générales
   void _showTermsDialog() {
     final theme = Theme.of(context);
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Terms & Conditions', style: theme.textTheme.titleLarge),
+        title: Text('Conditions Générales', style: theme.textTheme.titleLarge),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Age Requirement',
+                'Exigence d\'âge',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
               SizedBox(height: 8),
               Text(
-                'This program is specifically designed for young adults aged 18-30 years. The exercises and assessments are tailored to this age group\'s physical capabilities and common postural issues.',
+                'Ce programme est spécialement conçu pour les jeunes adultes âgés de 18 à 30 ans. Les exercices et évaluations sont adaptés aux capacités physiques de ce groupe d\'âge et aux problèmes posturaux courants.',
                 style: theme.textTheme.bodyMedium,
               ),
               SizedBox(height: 16),
               Text(
-                'Health Disclaimer',
+                'Avertissement de santé',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
               SizedBox(height: 8),
               Text(
-                'By using this app, you confirm that you are in good health and able to participate in physical exercise. If you experience severe pain (>7/10) or neurological symptoms, you will be advised to consult a healthcare professional.',
+                'En utilisant cette application, vous confirmez que vous êtes en bonne santé et capable de participer à des exercices physiques. Si vous ressentez une douleur intense (>7/10) ou des symptômes neurologiques, il vous sera conseillé de consulter un professionnel de santé.',
                 style: theme.textTheme.bodyMedium,
               ),
               SizedBox(height: 16),
               Text(
-                'Data Privacy',
+                'Confidentialité des données',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
               SizedBox(height: 8),
               Text(
-                'Your personal data and health information will be stored securely and used only to personalize your exercise program. We comply with GDPR and Moroccan Law 09 for data protection.',
+                'Vos données personnelles et informations de santé seront stockées en toute sécurité et utilisées uniquement pour personnaliser votre programme d\'exercices. Nous nous conformons au RGPD et à la loi marocaine 09-08 pour la protection des données.',
                 style: theme.textTheme.bodyMedium,
               ),
             ],
@@ -172,7 +172,7 @@ class _RegisterFormWidgetState extends State<RegisterFormWidget> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Close'),
+            child: Text('Fermer'),
           ),
         ],
       ),
@@ -188,7 +188,7 @@ class _RegisterFormWidgetState extends State<RegisterFormWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Email Field
+          // Champ Email
           TextFormField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
@@ -196,7 +196,7 @@ class _RegisterFormWidgetState extends State<RegisterFormWidget> {
             validator: _validateEmail,
             decoration: InputDecoration(
               labelText: 'Email',
-              hintText: 'Enter your email',
+              hintText: 'Entrez votre email',
               prefixIcon: Icon(Icons.email_outlined),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -205,15 +205,15 @@ class _RegisterFormWidgetState extends State<RegisterFormWidget> {
           ),
           SizedBox(height: 16),
 
-          // Password Field
+          // Champ Mot de passe
           TextFormField(
             controller: _passwordController,
             obscureText: _obscurePassword,
             textInputAction: TextInputAction.next,
             validator: _validatePassword,
             decoration: InputDecoration(
-              labelText: 'Password',
-              hintText: 'Create a strong password',
+              labelText: 'Mot de passe',
+              hintText: 'Créez un mot de passe fort',
               prefixIcon: Icon(Icons.lock_outline),
               suffixIcon: IconButton(
                 icon: Icon(
@@ -230,15 +230,15 @@ class _RegisterFormWidgetState extends State<RegisterFormWidget> {
           ),
           SizedBox(height: 16),
 
-          // Confirm Password Field
+          // Champ Confirmation du mot de passe
           TextFormField(
             controller: _confirmPasswordController,
             obscureText: _obscureConfirmPassword,
             textInputAction: TextInputAction.next,
             validator: _validateConfirmPassword,
             decoration: InputDecoration(
-              labelText: 'Confirm Password',
-              hintText: 'Re-enter your password',
+              labelText: 'Confirmer le mot de passe',
+              hintText: 'Ressaisissez votre mot de passe',
               prefixIcon: Icon(Icons.lock_outline),
               suffixIcon: IconButton(
                 icon: Icon(
@@ -259,7 +259,7 @@ class _RegisterFormWidgetState extends State<RegisterFormWidget> {
           ),
           SizedBox(height: 16),
 
-          // Age Field
+          // Champ Âge
           TextFormField(
             controller: _ageController,
             keyboardType: TextInputType.number,
@@ -271,8 +271,8 @@ class _RegisterFormWidgetState extends State<RegisterFormWidget> {
             validator: _validateAge,
             onFieldSubmitted: (_) => _handleRegister(),
             decoration: InputDecoration(
-              labelText: 'Age',
-              hintText: 'Enter your age (18-30)',
+              labelText: 'Âge',
+              hintText: 'Entrez votre âge (18-30)',
               prefixIcon: Icon(Icons.calendar_today_outlined),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -281,7 +281,7 @@ class _RegisterFormWidgetState extends State<RegisterFormWidget> {
           ),
           SizedBox(height: 16),
 
-          // Terms Checkbox
+          // Case à cocher Conditions
           Row(
             children: [
               Checkbox(
@@ -298,11 +298,11 @@ class _RegisterFormWidgetState extends State<RegisterFormWidget> {
                   onTap: _showTermsDialog,
                   child: Text.rich(
                     TextSpan(
-                      text: 'I accept the ',
+                      text: 'J\'accepte les ',
                       style: theme.textTheme.bodyMedium,
                       children: [
                         TextSpan(
-                          text: 'Terms & Conditions',
+                          text: 'Conditions Générales',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.primary,
                             fontWeight: FontWeight.w600,
@@ -318,7 +318,7 @@ class _RegisterFormWidgetState extends State<RegisterFormWidget> {
           ),
           SizedBox(height: 24),
 
-          // Register Button
+          // Bouton d'inscription
           SizedBox(
             height: 56,
             child: ElevatedButton(
@@ -340,7 +340,7 @@ class _RegisterFormWidgetState extends State<RegisterFormWidget> {
                       ),
                     )
                   : Text(
-                      'Create Account',
+                      'Créer un compte',
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: theme.colorScheme.onPrimary,
                         fontWeight: FontWeight.w600,
