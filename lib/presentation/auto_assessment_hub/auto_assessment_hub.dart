@@ -8,10 +8,11 @@ import '../../widgets/custom_icon_widget.dart';
 import './widgets/assessment_card_widget.dart';
 import './widgets/assessment_test_widget.dart';
 import './widgets/progress_header_widget.dart';
-
-/// Auto-Assessment Hub screen that guides users through comprehensive
-/// four-part evaluation system measuring mobility, stability, body awareness,
-/// and lifestyle factors.
+import '../ipaq_assessment/ipaq_assessment_screen.dart';
+import '../mobility_assessment/mobility_assessment_screen.dart';
+import '../stability_assessment/stability_assessment_screen.dart';
+/// Hub d'Auto-Évaluation qui guide l'utilisateur à travers le système
+/// d'évaluation complet en 4 parties conforme au cahier des charges.
 class AutoAssessmentHub extends StatefulWidget {
   const AutoAssessmentHub({super.key});
 
@@ -20,166 +21,270 @@ class AutoAssessmentHub extends StatefulWidget {
 }
 
 class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
-  int _currentBottomNavIndex = 2; // Assessments tab
+  int _currentBottomNavIndex = 2; // Onglet Évaluations
   int _currentAssessmentIndex = 0;
   bool _isAssessmentActive = false;
 
-  // Assessment completion tracking
+  // Suivi de complétion des évaluations
   final Map<String, bool> _assessmentCompletion = {
-    'mobility': false,
-    'stability': false,
-    'awareness': false,
-    'lifestyle': false,
+    'ipaq': false,       // Premier selon CDC
+    'mobilite': false,   // Mobilité
+    'stabilite': false,  // Stabilité
+    'conscience': false, // Conscience corporelle
   };
 
-  // Assessment data storage
+  // Stockage des données d'évaluation
   final Map<String, Map<String, dynamic>> _assessmentData = {
-    'mobility': {},
-    'stability': {},
-    'awareness': {},
-    'lifestyle': {},
+    'ipaq': {},
+    'mobilite': {},
+    'stabilite': {},
+    'conscience': {},
   };
 
-  // Mock assessment modules data
+  // Modules d'évaluation selon le cahier des charges
   final List<Map<String, dynamic>> _assessmentModules = [
     {
-      "id": "mobility",
-      "title": "Mobility Tests",
-      "description": "Ankle, hip, shoulder, and spine mobility assessment",
+      "id": "ipaq",
+      "title": "Questionnaire IPAQ-SF",
+      "description": "Évaluation du niveau d'activité physique hebdomadaire",
+      "estimatedTime": "3-5 minutes",
+      "icon": "assignment",
+      "color": Color(0xFF5B8FC4),
+      "ordre": 1,
+      "questions": [
+        {
+          "question": "Pendant les 7 derniers jours, combien de jours avez-vous marché au moins 10 minutes d'affilée ?",
+          "type": "jours_semaine",
+          "reponses": ["0 jour", "1 jour", "2 jours", "3 jours", "4 jours", "5 jours", "6 jours", "7 jours"]
+        },
+        {
+          "question": "Les jours où vous avez marché, combien de temps en moyenne par jour ?",
+          "type": "minutes_jour",
+          "reponses": ["Moins de 10 min", "10-30 min", "30-60 min", "1-2h", "Plus de 2h"]
+        },
+        {
+          "question": "Pendant les 7 derniers jours, combien de jours avez-vous fait des activités physiques MODÉRÉES (ex: vélo lent, yoga léger) ?",
+          "type": "jours_semaine",
+          "reponses": ["0 jour", "1 jour", "2 jours", "3 jours", "4 jours", "5 jours", "6 jours", "7 jours"]
+        },
+        {
+          "question": "Les jours d'activités modérées, combien de temps en moyenne par jour ?",
+          "type": "minutes_jour",
+          "reponses": ["Moins de 10 min", "10-30 min", "30-60 min", "1-2h", "Plus de 2h"]
+        },
+        {
+          "question": "Pendant les 7 derniers jours, combien de jours avez-vous fait des activités physiques INTENSES (ex: course, sport intense) ?",
+          "type": "jours_semaine",
+          "reponses": ["0 jour", "1 jour", "2 jours", "3 jours", "4 jours", "5 jours", "6 jours", "7 jours"]
+        },
+        {
+          "question": "Les jours d'activités intenses, combien de temps en moyenne par jour ?",
+          "type": "minutes_jour",
+          "reponses": ["Moins de 10 min", "10-30 min", "30-60 min", "1-2h", "Plus de 2h"]
+        },
+        {
+          "question": "En moyenne, combien d'heures par jour passez-vous ASSIS pendant la semaine (bureau, transport, maison) ?",
+          "type": "heures_jour",
+          "reponses": ["Moins de 4h", "4-6h", "6-8h", "8-10h", "Plus de 10h"]
+        }
+      ]
+    },
+    {
+      "id": "mobilite",
+      "title": "Bilan Mobilité",
+      "description": "Tests pratiques cheville, hanche, épaules, rachis + questionnaire",
       "estimatedTime": "6-8 minutes",
       "icon": "accessibility_new",
       "color": Color(0xFF2D5A87),
+      "ordre": 2,
       "tests": [
         {
-          "name": "Ankle Mobility",
-          "instruction":
-              "Stand facing a wall. Place one foot forward and try to touch your knee to the wall while keeping your heel on the ground.",
-          "duration": 30,
-          "scoringCriteria": ["Amplitude (0-10)", "Ease (0-10)", "Pain (0-10)"]
+          "id": "cheville",
+          "name": "Mobilité Cheville (Dorsiflexion)",
+          "instruction": "Placez-vous face à un mur, pieds nus. Avancez un pied de façon à ce que vos orteils soient à environ 10 cm du mur. Gardez le talon au sol et pliez le genou vers l'avant jusqu'à ce qu'il touche le mur. Répétez avec l'autre pied.",
+          "duration": 45,
+          "scoringCriteria": ["Amplitude /10", "Facilité /10", "Douleur /10"],
+          "videoGuidance": null, // ou "cheville_dorsiflexion.mp4"
+          "safetyTips": "Ne forcez pas si vous ressentez une douleur aiguë à la cheville"
         },
         {
-          "name": "Hip Mobility",
-          "instruction":
-              "Lie on your back. Bring one knee to your chest while keeping the other leg straight on the ground.",
-          "duration": 30,
-          "scoringCriteria": ["Amplitude (0-10)", "Ease (0-10)", "Pain (0-10)"]
+          "id": "hanche",
+          "name": "Mobilité Hanche (Flexion/Rotation)",
+          "instruction": "Allongez-vous sur le dos, jambes tendues. Ramenez un genou vers votre poitrine en le tenant avec vos mains. Gardez l'autre jambe tendue au sol. Maintenez 10 secondes, puis changez de côté.",
+          "duration": 60,
+          "scoringCriteria": ["Amplitude /10", "Facilité /10", "Douleur /10"],
+          "videoGuidance": null,
+          "safetyTips": "Évitez si vous avez des problèmes de hanche récents"
         },
         {
-          "name": "Shoulder Mobility",
-          "instruction":
-              "Stand with your back against a wall. Raise both arms overhead, trying to touch the wall with your hands.",
-          "duration": 30,
-          "scoringCriteria": ["Amplitude (0-10)", "Ease (0-10)", "Pain (0-10)"]
+          "id": "epaules",
+          "name": "Mobilité Épaules (Flexion/Abduction)",
+          "instruction": "Debout, dos contre un mur. Levez les bras sur les côtés jusqu'à ce qu'ils touchent le mur. Puis, levez-les vers l'avant jusqu'au-dessus de la tête, en gardant les coudes tendus.",
+          "duration": 45,
+          "scoringCriteria": ["Amplitude /10", "Facilité /10", "Douleur /10"],
+          "videoGuidance": null,
+          "safetyTips": "Arrêtez si douleur à l'épaule > 4/10"
         },
         {
-          "name": "Spine Mobility",
-          "instruction":
-              "Sit on a chair. Slowly rotate your upper body to the right, then to the left, keeping your hips stable.",
-          "duration": 30,
-          "scoringCriteria": ["Amplitude (0-10)", "Ease (0-10)", "Pain (0-10)"]
+          "id": "rachis",
+          "name": "Mobilité Rachis (Flexion/Extension/Rotation)",
+          "instruction": "Assis sur une chaise, pieds à plat. Tournez lentement le haut du corps vers la droite, en gardant les hanches stables. Tenez 5 secondes, revenez au centre, puis tournez à gauche. Ensuite, penchez-vous doucement vers l'avant comme pour toucher vos pieds.",
+          "duration": 60,
+          "scoringCriteria": ["Amplitude /10", "Facilité /10", "Douleur /10"],
+          "videoGuidance": null,
+          "safetyTips": "Évitez les mouvements brusques"
+        }
+      ],
+      "questionnaire": [
+        {
+          "id": "q1",
+          "question": "Me pencher en avant sans gêne",
+          "echelle": "0 (impossible) à 4 (très facile)",
+          "type": "echelle",
+          "inverse": false
+        },
+        {
+          "id": "q2",
+          "question": "M'accroupir sans douleur",
+          "echelle": "0 (impossible) à 4 (très facile)",
+          "type": "echelle",
+          "inverse": false
+        },
+        {
+          "id": "q3",
+          "question": "Tourner mon tronc aisément",
+          "echelle": "0 (impossible) à 4 (très facile)",
+          "type": "echelle",
+          "inverse": false
+        },
+        {
+          "id": "q4",
+          "question": "Lever les bras au-dessus de ma tête",
+          "echelle": "0 (impossible) à 4 (très facile)",
+          "type": "echelle",
+          "inverse": false
+        },
+        {
+          "id": "q5",
+          "question": "Sensation de raideur au réveil",
+          "echelle": "0 (jamais) à 4 (toujours)",
+          "type": "echelle",
+          "inverse": true
         }
       ]
     },
     {
-      "id": "stability",
-      "title": "Stability Tests",
-      "description": "Balance, knee control, and trunk stability evaluation",
+      "id": "stabilite",
+      "title": "Bilan Stabilité",
+      "description": "Équilibre unipodal, contrôle genou, stabilité lombaire",
       "estimatedTime": "5-7 minutes",
       "icon": "balance",
       "color": Color(0xFF7BA05B),
+      "ordre": 3,
       "tests": [
-        {
-          "name": "One-Leg Balance",
-          "instruction":
-              "Stand on one leg with your hands on your hips. Try to maintain balance for 30 seconds.",
-          "duration": 30,
-          "scoringCriteria": [
-            "Time held (seconds)",
-            "Stability (0-10)",
-            "Pain (0-10)"
-          ]
-        },
-        {
-          "name": "Knee Control",
-          "instruction":
-              "Stand on one leg. Slowly bend your knee to lower your body, then return to standing position.",
-          "duration": 30,
-          "scoringCriteria": [
-            "Control (0-10)",
-            "Alignment (0-10)",
-            "Pain (0-10)"
-          ]
-        },
-        {
-          "name": "Trunk Stability",
-          "instruction":
-              "Get into a plank position on your forearms. Hold this position while maintaining a straight line from head to heels.",
-          "duration": 30,
-          "scoringCriteria": [
-            "Time held (seconds)",
-            "Form (0-10)",
-            "Pain (0-10)"
-          ]
-        }
-      ]
-    },
+      {
+        "name": "Équilibre Unipodal",
+        "instruction": "Tenez-vous sur une jambe avec vos mains sur vos hanches. Essayez de maintenir l'équilibre pendant 30 secondes sans bouger.",
+        "duration": 30,
+        "scoringCriteria": ["Temps tenu (secondes)", "Stabilité /10", "Douleur /10"],
+        "videoGuidance": "assets/videos/stability/balance_test.mp4",
+        "tips": ["Fixez un point devant vous", "Ne regardez pas vos pieds", "Gardez le corps aligné"]
+      },
+      {
+        "name": "Contrôle du Genou (Mini-squat)",
+        "instruction": "Sur une jambe, pliez doucement le genou pour descendre votre corps, puis remontez lentement en gardant le contrôle.",
+        "duration": 30,
+        "scoringCriteria": ["Contrôle /10", "Alignement /10", "Douleur /10"],
+        "videoGuidance": "assets/videos/stability/knee_control.mp4",
+        "tips": ["Gardez le genou aligné avec le pied", "Descendez seulement à votre confort", "Mouvement lent et contrôlé"]
+      },
+      {
+        "name": "Stabilité Lombaire (Dead-bug simplifié)",
+        "instruction": "Allongé sur le dos, bras et jambes en l'air. Abaissez une jambe et le bras opposé vers le sol, puis revenez à la position initiale.",
+        "duration": 30,
+        "scoringCriteria": ["Stabilité /10", "Forme /10", "Douleur /10"],
+        "videoGuidance": "assets/videos/stability/core_stability.mp4",
+        "tips": ["Gardez le bas du dos collé au sol", "Expirez en descendant", "Contrôlez le mouvement"]
+      }
+    ],
+    "questionnaire": [
+      {
+        "question": "Tenir l'équilibre sur une jambe 10 secondes",
+        "echelle": "0 (jamais) à 4 (toujours)",
+        "type": "echelle"
+      },
+      {
+        "question": "Mes genoux 'rentrent' pendant le squat",
+        "echelle": "0 (jamais) à 4 (toujours)",
+        "type": "echelle",
+        "inverse": true
+      },
+      {
+        "question": "Bas du dos stable lors des mouvements",
+        "echelle": "0 (jamais) à 4 (toujours)",
+        "type": "echelle"
+      },
+      {
+        "question": "Perte d'équilibre fréquente",
+        "echelle": "0 (jamais) à 4 (toujours)",
+        "type": "echelle",
+        "inverse": true
+      },
+      {
+        "question": "Sensation générale de stabilité",
+        "echelle": "0 (jamais) à 4 (toujours)",
+        "type": "echelle"
+      }
+    ]
+  },
     {
-      "id": "awareness",
-      "title": "Body Awareness",
-      "description": "Breathing, posture perception, and movement control",
+      "id": "conscience",
+      "title": "Bilan Conscience Corporelle",
+      "description": "Respiration diaphragmatique, perception posturale, contrôle mouvement",
       "estimatedTime": "5-6 minutes",
       "icon": "self_improvement",
-      "color": Color(0xFF5B8FC4),
-      "tests": [
-        {
-          "name": "Diaphragmatic Breathing",
-          "instruction":
-              "Lie on your back with one hand on your chest and one on your belly. Breathe deeply, focusing on expanding your belly rather than your chest.",
-          "duration": 60,
-          "scoringCriteria": [
-            "Belly expansion (0-10)",
-            "Chest movement (0-10)",
-            "Ease (0-10)"
-          ]
-        },
-        {
-          "name": "Posture Perception",
-          "instruction":
-              "Stand naturally. Without looking in a mirror, assess whether you feel your weight is evenly distributed and your spine is aligned.",
-          "duration": 30,
-          "scoringCriteria": ["Awareness (0-10)", "Alignment perception (0-10)"]
-        },
-        {
-          "name": "Controlled Movement",
-          "instruction":
-              "Slowly raise your arms overhead, then lower them. Focus on moving smoothly and with control throughout the entire range.",
-          "duration": 30,
-          "scoringCriteria": [
-            "Control (0-10)",
-            "Smoothness (0-10)",
-            "Awareness (0-10)"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "lifestyle",
-      "title": "Lifestyle Questionnaire",
-      "description": "IPAQ-SF physical activity assessment",
-      "estimatedTime": "3-5 minutes",
-      "icon": "assignment",
       "color": Color(0xFF9BC47D),
+      "ordre": 4,
       "tests": [
         {
-          "name": "Physical Activity Level",
-          "instruction":
-              "Answer questions about your typical weekly physical activity including vigorous activities, moderate activities, walking, and sitting time.",
-          "duration": 0,
-          "scoringCriteria": [
-            "Activity frequency",
-            "Activity duration",
-            "Sitting time"
-          ]
+          "name": "Respiration Diaphragmatique",
+          "instruction": "Allongé sur le dos, une main sur la poitrine, une sur le ventre. Respirez profondément en gonflant le ventre.",
+          "duration": 60,
+          "scoringCriteria": ["Expansion ventre /10", "Mouvement poitrine /10", "Facilité /10"]
+        },
+        {
+          "name": "Auto-perception Posture Assise",
+          "instruction": "Assis naturellement. Évaluez si votre poids est bien réparti et votre colonne alignée.",
+          "duration": 30,
+          "scoringCriteria": ["Prise de conscience /10", "Perception alignement /10"]
+        },
+        {
+          "name": "Contrôle de Mouvement",
+          "instruction": "Levez lentement les bras au-dessus de la tête, puis baissez-les. Concentrez-vous sur un mouvement fluide.",
+          "duration": 30,
+          "scoringCriteria": ["Contrôle /10", "Fluidité /10", "Conscience /10"]
+        }
+      ],
+      "questionnaire": [
+        {
+          "question": "Je remarque facilement une mauvaise posture",
+          "echelle": "0 (jamais) à 4 (toujours)"
+        },
+        {
+          "question": "Je suis conscient de ma respiration dans la journée",
+          "echelle": "0 (jamais) à 4 (toujours)"
+        },
+        {
+          "question": "Je perçois les zones de tension dans mon corps",
+          "echelle": "0 (jamais) à 4 (toujours)"
+        },
+        {
+          "question": "Je remarque quand je compense un mouvement",
+          "echelle": "0 (jamais) à 4 (toujours)"
+        },
+        {
+          "question": "Je sens si un mouvement est fluide ou rigide",
+          "echelle": "0 (jamais) à 4 (toujours)"
         }
       ]
     }
@@ -194,7 +299,7 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
       appBar: _isAssessmentActive
           ? null
           : CustomAppBar(
-              title: 'Assessment Hub',
+              title: 'Hub d\'Auto-Évaluation',
               variant: CustomAppBarVariant.standard,
               actions: [
                 IconButton(
@@ -204,7 +309,7 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
                     size: 24,
                   ),
                   onPressed: () => _showAssessmentInfo(context),
-                  tooltip: 'Assessment Information',
+                  tooltip: 'Informations sur les évaluations',
                 ),
               ],
             ),
@@ -222,9 +327,13 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
     );
   }
 
-  /// Builds the main assessment hub interface
+  /// Construit l'interface principale du hub d'évaluation
   Widget _buildAssessmentHub(BuildContext context) {
     final theme = Theme.of(context);
+
+    // Trier les modules par ordre défini
+    final sortedModules = _assessmentModules.toList()
+      ..sort((a, b) => (a['ordre'] ?? 0).compareTo(b['ordre'] ?? 0));
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -234,7 +343,7 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Progress header
+              // En-tête de progression
               ProgressHeaderWidget(
                 completedCount:
                     _assessmentCompletion.values.where((v) => v).length,
@@ -242,25 +351,18 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
               ),
               SizedBox(height: 3.h),
 
-              // Introduction text
-              Text(
-                'Complete all four assessments to unlock your personalized motor reactivation program',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-              SizedBox(height: 3.h),
+              
 
-              // Assessment cards
+              // Cartes d'évaluation
               ListView.separated(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
-                itemCount: _assessmentModules.length,
+                itemCount: sortedModules.length,
                 separatorBuilder: (context, index) => SizedBox(height: 2.h),
                 itemBuilder: (context, index) {
-                  final module = _assessmentModules[index];
-                  final isCompleted =
-                      _assessmentCompletion[module['id']] ?? false;
+                  final module = sortedModules[index];
+                    final isCompleted = _assessmentCompletion[module['id']] ?? false;
+                    final isLocked = index > 0 && !(_assessmentCompletion[sortedModules[index - 1]['id']] ?? false);
 
                   return AssessmentCardWidget(
                     title: module['title'] as String,
@@ -269,13 +371,14 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
                     iconName: module['icon'] as String,
                     color: module['color'] as Color,
                     isCompleted: isCompleted,
-                    onTap: () => _startAssessment(index),
+                    isLocked: isLocked,
+                    onTap: !isLocked ? () => _startAssessment(index) : null,
                   );
                 },
               ),
               SizedBox(height: 3.h),
 
-              // Complete button
+              // Bouton de complétion
               if (_assessmentCompletion.values.every((v) => v))
                 SizedBox(
                   width: double.infinity,
@@ -286,7 +389,7 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
                       backgroundColor: theme.colorScheme.secondary,
                     ),
                     child: Text(
-                      'Generate My Program',
+                      'Générer mon Programme',
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: theme.colorScheme.onSecondary,
                       ),
@@ -294,6 +397,43 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
                   ),
                 ),
               SizedBox(height: 2.h),
+
+              // Indication sur l'ordre des tests
+              Container(
+                padding: EdgeInsets.all(3.w),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceVariant,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        CustomIconWidget(
+                          iconName: 'info',
+                          color: theme.colorScheme.primary,
+                          size: 20,
+                        ),
+                        SizedBox(width: 2.w),
+                        Text(
+                          'Ordre recommandé :',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 1.h),
+                    Text(
+                      '1. IPAQ → 2. Mobilité → 3. Stabilité → 4. Conscience corporelle\n\nL\'IPAQ mesure d\'abord votre niveau d\'activité physique pour adapter les séances.',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -301,74 +441,170 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
     );
   }
 
-  /// Builds the active assessment interface
+ /// Construit l'interface d'évaluation active
   Widget _buildActiveAssessment(BuildContext context) {
     final module = _assessmentModules[_currentAssessmentIndex];
-    final tests = module['tests'] as List<Map<String, dynamic>>;
-
-    return AssessmentTestWidget(
-      moduleName: module['title'] as String,
-      tests: tests,
-      onComplete: (data) => _saveAssessmentData(module['id'] as String, data),
-      onExit: () => setState(() => _isAssessmentActive = false),
-    );
+    final moduleId = module['id'] as String;
+    
+    print("🔧 Module actif: $moduleId");
+    
+    // Gérer selon le type de module
+    if (moduleId == 'ipaq') {
+      // Pour IPAQ (déjà fonctionnel)
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => IpaqAssessmentScreen(),
+          ),
+        );
+        
+        if (result != null && result is Map<String, dynamic>) {
+          _saveAssessmentData('ipaq', result);
+        }
+        setState(() => _isAssessmentActive = false);
+      });
+      
+      return Center(child: CircularProgressIndicator());
+      
+    } else if (moduleId == 'mobilite') {
+      // Pour Mobilité (à adapter avec la nouvelle version vidéo)
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MobilityAssessmentScreen(),
+          ),
+        );
+        
+        if (result != null && result is Map<String, dynamic>) {
+          _saveAssessmentData('mobilite', result);
+        }
+        setState(() => _isAssessmentActive = false);
+      });
+      
+      return Center(child: CircularProgressIndicator());
+      
+    } else if (moduleId == 'stabilite') {
+      // POUR STABILITÉ 🆕
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StabilityAssessmentScreen(),
+          ),
+        );
+        
+        if (result != null && result is Map<String, dynamic>) {
+          _saveAssessmentData('stabilite', result);
+        }
+        setState(() => _isAssessmentActive = false);
+      });
+      
+      return Center(child: CircularProgressIndicator());
+      
+    } else if (moduleId == 'conscience') {
+      // POUR CONSCIENCE (à créer plus tard)
+      final tests = module['tests'] as List<Map<String, dynamic>>;
+      
+      return AssessmentTestWidget(
+        moduleName: module['title'] as String,
+        tests: tests,
+        onComplete: (data) => _saveAssessmentData(moduleId, data),
+        onExit: () => setState(() => _isAssessmentActive = false),
+      );
+    }
+    
+    // Fallback
+    return Center(child: Text('Module non implémenté'));
   }
 
-  /// Starts an assessment module
+  /// Démarre un module d'évaluation
   void _startAssessment(int index) {
+    final module = _assessmentModules[index];
+    final moduleId = module['id'] as String;
+    
+    print("▶️ Démarrage module: $moduleId");
+    
+    // VÉRIFICATION : IPAQ doit être fait en premier
+    if (moduleId != 'ipaq' && !(_assessmentCompletion['ipaq'] ?? false)) {
+      print("⛔ IPAQ non complété, impossible de continuer");
+      
+      // Afficher un message d'erreur
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Complétez d\'abord le questionnaire IPAQ-SF'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+    
     setState(() {
       _currentAssessmentIndex = index;
       _isAssessmentActive = true;
     });
   }
 
-  /// Saves assessment data and marks module as complete
+  /// Sauvegarde les données d'évaluation et marque le module comme complet
   void _saveAssessmentData(String moduleId, Map<String, dynamic> data) {
+    print("💾 Sauvegarde module: $moduleId");
+    print("📊 Données reçues: ${data.keys}");
+    
     setState(() {
       _assessmentData[moduleId] = data;
       _assessmentCompletion[moduleId] = true;
       _isAssessmentActive = false;
     });
 
-    // Check for red flags
-    _checkRedFlags(moduleId, data);
-
-    // Show completion message
+    // Message de succès
+    final moduleTitle = _assessmentModules.firstWhere(
+      (m) => m['id'] == moduleId,
+      orElse: () => {'title': 'Module'},
+    )['title'] as String;
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-            '${_assessmentModules[_currentAssessmentIndex]['title']} completed!'),
+        content: Text('✅ $moduleTitle complété !'),
         backgroundColor: Theme.of(context).colorScheme.secondary,
         duration: Duration(seconds: 2),
       ),
     );
+    
+    // Vérifier les red flags (sauf pour IPAQ)
+    if (moduleId != 'ipaq') {
+      _checkRedFlags(moduleId, data);
+    }
   }
 
-  /// Checks for red flags in assessment data
+  /// Vérifie les red flags selon le cahier des charges
   void _checkRedFlags(String moduleId, Map<String, dynamic> data) {
     bool hasRedFlag = false;
     String redFlagMessage = '';
 
-    // Check for high pain scores (>7/10)
-    data.forEach((testName, testData) {
-      if (testData is Map<String, dynamic>) {
-        final painScore = testData['Pain (0-10)'];
-        if (painScore != null && painScore > 7) {
-          hasRedFlag = true;
-          redFlagMessage = 'High pain level detected during $testName test';
-        }
+    // Vérifier les scores de douleur élevés (>7/10)
+    if (moduleId != 'ipaq') {
+      data.forEach((testName, testData) {
+        if (testData is Map<String, dynamic>) {
+          final painScore = testData['Douleur /10'];
+          if (painScore != null && painScore > 7) {
+            hasRedFlag = true;
+            redFlagMessage = 'Douleur élevée détectée pendant le test $testName';
+          }
 
-        // Check for test inability
-        final testCompleted = testData['completed'];
-        if (testCompleted != null && !testCompleted) {
-          hasRedFlag = true;
-          redFlagMessage = 'Unable to complete $testName test';
+          // Vérifier l'incapacité à réaliser un test
+          final testCompleted = testData['completed'];
+          if (testCompleted != null && !testCompleted) {
+            hasRedFlag = true;
+            redFlagMessage = 'Incapacité à réaliser le test $testName';
+          }
         }
-      }
-    });
+      });
+    }
 
     if (hasRedFlag) {
-      // Navigate to red flags alert screen
+      // Naviguer vers l'écran d'alerte red flags
       Future.delayed(Duration(milliseconds: 500), () {
         Navigator.pushNamed(
           context,
@@ -382,21 +618,21 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
     }
   }
 
-  /// Completes all assessments and generates program
+  /// Complète toutes les évaluations et génère le programme
   void _completeAssessment(BuildContext context) {
-    // Show celebration animation
+    // Afficher l'animation de célébration
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => _buildCelebrationDialog(context),
     );
 
-    // Navigate to program summary after delay
+    // Naviguer vers le tableau de bord de progression après délai
     Future.delayed(Duration(seconds: 2), () {
-      Navigator.pop(context); // Close dialog
+      Navigator.pop(context); // Fermer la boîte de dialogue
       Navigator.pushNamed(
         context,
-        '/program-summary',
+        '/progress-dashboard', // Modifié pour aller vers Progress Dashboard
         arguments: {
           'assessmentData': _assessmentData,
         },
@@ -404,7 +640,7 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
     });
   }
 
-  /// Builds celebration dialog
+  /// Construit la boîte de dialogue de célébration
   Widget _buildCelebrationDialog(BuildContext context) {
     final theme = Theme.of(context);
 
@@ -424,7 +660,7 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
             ),
             SizedBox(height: 2.h),
             Text(
-              'Assessment Complete!',
+              'Évaluations Complétées !',
               style: theme.textTheme.headlineSmall?.copyWith(
                 color: theme.colorScheme.onSurface,
                 fontWeight: FontWeight.w600,
@@ -433,7 +669,7 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
             ),
             SizedBox(height: 1.h),
             Text(
-              'Generating your personalized program...',
+              'Génération de votre programme personnalisé...',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
@@ -449,7 +685,7 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
     );
   }
 
-  /// Shows assessment information dialog
+  /// Affiche les informations sur les évaluations
   void _showAssessmentInfo(BuildContext context) {
     final theme = Theme.of(context);
 
@@ -457,7 +693,7 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'About Assessments',
+          'À propos des évaluations',
           style: theme.textTheme.titleLarge,
         ),
         content: SingleChildScrollView(
@@ -466,29 +702,29 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Complete all four assessment modules to receive your personalized motor reactivation program:',
+                'Complétez les 4 modules d\'évaluation pour recevoir votre programme personnalisé de réactivation motrice :',
                 style: theme.textTheme.bodyMedium,
               ),
               SizedBox(height: 2.h),
               _buildInfoItem(
                 context,
-                'Mobility Tests',
-                'Evaluates range of motion in key joints',
+                'IPAQ-SF',
+                'Mesure votre niveau d\'activité physique hebdomadaire',
               ),
               _buildInfoItem(
                 context,
-                'Stability Tests',
-                'Assesses balance and postural control',
+                'Bilan Mobilité',
+                'Évalue l\'amplitude articulaire (cheville, hanche, épaules, rachis)',
               ),
               _buildInfoItem(
                 context,
-                'Body Awareness',
-                'Measures movement perception and control',
+                'Bilan Stabilité',
+                'Teste l\'équilibre et le contrôle postural',
               ),
               _buildInfoItem(
                 context,
-                'Lifestyle Questionnaire',
-                'Evaluates current physical activity levels',
+                'Bilan Conscience Corporelle',
+                'Mesure la perception et le contrôle du mouvement',
               ),
               SizedBox(height: 2.h),
               Container(
@@ -507,7 +743,7 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
                     SizedBox(width: 2.w),
                     Expanded(
                       child: Text(
-                        'Stop immediately if you experience severe pain (>7/10) or unusual symptoms',
+                        'Arrêtez immédiatement si vous ressentez une douleur aiguë (>7/10) ou des symptômes neurologiques',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onErrorContainer,
                         ),
@@ -522,14 +758,14 @@ class _AutoAssessmentHubState extends State<AutoAssessmentHub> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Got it'),
+            child: Text('Compris'),
           ),
         ],
       ),
     );
   }
 
-  /// Builds info item for dialog
+  /// Construit un élément d'information pour la boîte de dialogue
   Widget _buildInfoItem(
       BuildContext context, String title, String description) {
     final theme = Theme.of(context);
