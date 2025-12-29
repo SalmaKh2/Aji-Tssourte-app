@@ -6,9 +6,9 @@ import '../../widgets/custom_icon_widget.dart';
 import './widgets/login_form_widget.dart';
 import './widgets/register_form_widget.dart';
 
-/// Authentication screen for user login and registration
-/// Implements secure authentication with age validation (18-30 years)
-/// Features biometric authentication support and JWT token handling
+/// Écran d'authentification pour la connexion et l'inscription des utilisateurs
+/// Met en œuvre une authentification sécurisée avec validation d'âge (18-30 ans)
+/// Propose la prise en charge de l'authentification biométrique et la gestion des jetons JWT
 class AuthenticationScreen extends StatefulWidget {
   const AuthenticationScreen({super.key});
 
@@ -33,21 +33,21 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
     super.dispose();
   }
 
-  /// Handles successful authentication
+  /// Gère l'authentification réussie
   void _handleAuthSuccess(bool isNewUser) {
     HapticFeedback.mediumImpact();
 
-    // Navigate based on user type
+    // Navigation selon le type d'utilisateur
     if (isNewUser) {
-      // New users go to auto-assessment
-      Navigator.pushReplacementNamed(context, '/auto-assessment-hub');
+      // Les nouveaux utilisateurs vont à l'étape d'introduction
+      Navigator.pushReplacementNamed(context, '/onboarding_guide');
     } else {
-      // Returning users go to dashboard
-      Navigator.pushReplacementNamed(context, '/authentication-screen');
+      // Les utilisateurs existants vont au tableau de bord
+      Navigator.pushReplacementNamed(context, '/authentication_screen');
     }
   }
 
-  /// Shows error message to user
+  /// Affiche un message d'erreur à l'utilisateur
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -77,19 +77,19 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // App Logo
+                  // Logo de l'application
                   _buildLogo(theme),
                   SizedBox(height: 48),
 
-                  // Welcome Text
+                  // Texte de bienvenue
                   _buildWelcomeText(theme),
                   SizedBox(height: 32),
 
-                  // Tab Selector (Login/Register)
+                  // Sélecteur d'onglets (Connexion/Inscription)
                   _buildTabSelector(theme),
                   SizedBox(height: 32),
 
-                  // Tab Content
+                  // Contenu des onglets
                   _buildTabContent(),
                 ],
               ),
@@ -100,7 +100,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
     );
   }
 
-  /// Builds app logo section
+  /// Construit la section du logo de l'application
   Widget _buildLogo(ThemeData theme) {
     return Center(
       child: Container(
@@ -121,7 +121,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
     );
   }
 
-  /// Builds welcome text section
+  /// Construit la section du texte de bienvenue
   Widget _buildWelcomeText(ThemeData theme) {
     return Column(
       children: [
@@ -135,7 +135,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
         ),
         SizedBox(height: 8),
         Text(
-          'Your journey to better posture starts here',
+          'Votre voyage vers une meilleure posture commence ici',
           style: theme.textTheme.bodyLarge?.copyWith(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
           ),
@@ -145,7 +145,7 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
     );
   }
 
-  /// Builds tab selector for Login/Register
+  /// Construit le sélecteur d'onglets pour Connexion/Inscription
   Widget _buildTabSelector(ThemeData theme) {
     return Container(
       height: 48,
@@ -175,14 +175,14 @@ class _AuthenticationScreenState extends State<AuthenticationScreen>
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
         tabs: const [
-          Tab(text: 'Login'),
-          Tab(text: 'Register'),
+          Tab(text: 'Connexion'),
+          Tab(text: 'Inscription'),
         ],
       ),
     );
   }
 
-  /// Builds tab content (Login/Register forms)
+  /// Construit le contenu des onglets (formulaires de Connexion/Inscription)
   Widget _buildTabContent() {
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.6,
