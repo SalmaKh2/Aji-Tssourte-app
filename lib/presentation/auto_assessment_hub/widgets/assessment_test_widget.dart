@@ -8,13 +8,16 @@ import '../../../widgets/custom_icon_widget.dart';
 class AssessmentTestWidget extends StatefulWidget {
   final String moduleName;
   final List<Map<String, dynamic>> tests;
+  final List<Map<String, dynamic>>? questionnaire;
   final Function(Map<String, dynamic>) onComplete;
   final VoidCallback onExit;
+
 
   const AssessmentTestWidget({
     super.key,
     required this.moduleName,
     required this.tests,
+    this.questionnaire,
     required this.onComplete,
     required this.onExit,
   });
