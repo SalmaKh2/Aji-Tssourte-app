@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-/// Widget displaying overall assessment progress with visual indicators
+/// Widget affichant la progression globale de l'évaluation avec indicateurs visuels
 class ProgressHeaderWidget extends StatelessWidget {
   final int completedCount;
   final int totalCount;
@@ -34,7 +34,7 @@ class ProgressHeaderWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Your Progress',
+                'Votre Progression',
                 style: theme.textTheme.titleLarge?.copyWith(
                   color: theme.colorScheme.onPrimaryContainer,
                   fontWeight: FontWeight.w600,
@@ -71,8 +71,8 @@ class ProgressHeaderWidget extends StatelessWidget {
           SizedBox(height: 1.h),
           Text(
             completedCount == totalCount
-                ? 'All assessments complete! Ready to generate your program.'
-                : 'Complete all assessments to unlock your personalized program',
+                ? 'Toutes les évaluations sont terminées ! Prêt à générer votre programme.'
+                : 'Complétez les 4 évaluations pour débloquer votre programme personnalisé de réactivation motrice',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onPrimaryContainer.withValues(
                 alpha: 0.8,
