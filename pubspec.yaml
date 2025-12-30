@@ -9,7 +9,12 @@ environment:
 dependencies:
   flutter:       # CRITICAL: Required for every Flutter project - DO NOT REMOVE
     sdk: flutter # CRITICAL: Required for every Flutter project - DO NOT REMOVE
-  
+  confetti: ^0.7.0
+  video_player: ^2.8.3
+  chewie: ^1.7.2 
+  http: ^1.1.0
+  provider: ^6.0.5
+    
   # CRITICAL: Core UI and responsive design - DO NOT REMOVE OR MODIFY
   sizer: ^2.0.15              # Required for responsive design system
   flutter_svg: ^2.0.9        # Required for SVG icon support
